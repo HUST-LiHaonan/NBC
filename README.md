@@ -1,0 +1,26 @@
+朴素贝叶斯分类器的MapReduce实现
+1、实验环境及所用框架
+本实验在MacOS操作系统下，使用Hadoop3框架实现了朴素贝叶斯文本分类器并采用伪分布式的方法进行部署。
+ 
+2、贝叶斯分类器实现方法说明
+贝叶斯分类器的MapReduce实现分为训练、测试以及评估三个阶段，共有四个 MapReuce任务。
+①训练阶段：
+训练阶段有两个MapReduce任务，MapReduce任务一用于收集计算训练集中某一个文档d属于类c的先验概率所需要的数据，MapReduce任务二用于收集计算训练集中单词w出现在类c中的条件概率所需要的数据。这个两个MapReduce任务都将收集到的数据以文本的形式保存到HDFS上。
+②预测阶段：
+预测阶段有两个MapReduce任务，MapReduce任务三用于完成对测试集中的文档进行分类预测。MapReduce任务四用于计算测试集中的文档总数和每一个类别的文档总数，便于最后的评估阶段使用。这两个MapReduce任务同样也将结果以文本的形式保存到HDFS上。
+③评估阶段：
+评估阶段采用Java单机程序，计算出分类模型的Precision，Recall和F1值。
+ 
+3、数据集说明
+本次实验选择了Country文件夹下的UK和CHINA作为实验数据，其中UK包含790个文本，CHINA包含255个文本。按照8:2的比例随机选取数据集和测试集并进行编号。
+
+训练集和测试集都保存在HDFS上，它们的相对路径如下：
+/NBC/Train/CHINA用于保存CHINA的训练集
+/NBC/Train/UK用于保存UK的训练集
+/NBC/Test/input/CHINA用于保存CHINA的测试集
+/NBC/Test/input/UK用于保存UK的测试集
+
+4、使用说明
+①首先在HDFS上上传相应的数据集并完成划分
+②依次执行TextCount，WordCount，Classify，这三个Job的任务是统计文本数量和单词数量以及根据前面的数据进行分类，需要在命令行键入数据集的HDFS地址，尽量与第三点说明的保持一致，若不一致需在Classify包和Evalution包下对相关路径进行修改。
+③最后执行Evalution，对分类结果进行评估。
